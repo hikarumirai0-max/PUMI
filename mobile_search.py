@@ -23,7 +23,7 @@ creds = Credentials.from_service_account_info(
 
 gc = gspread.authorize(creds)
 
-spreadsheet = gc.open("제목 없는 스프레드시트")
+spreadsheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1ABC1234567")
 worksheet = spreadsheet.sheet1
 
 records = worksheet.get_all_records()
