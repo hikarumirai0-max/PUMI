@@ -23,8 +23,8 @@ creds = Credentials.from_service_account_info(
 
 gc = gspread.authorize(creds)
 
-spreadsheet = gc.open("제목 없는 스프레드시트")
-worksheet = spreadsheet.sheet1
+spreadsheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1Munh1Tlo24n_ZsTN1Iu1hAfMbVWn4vE6axWl6SHxUk/edit?gid=0#gid=0")
+worksheet = spreadsheet.worksheet("cases")
 
 records = worksheet.get_all_records()
 df = pd.DataFrame(records)
