@@ -23,7 +23,8 @@ creds = Credentials.from_service_account_info(
 
 gc = gspread.authorize(creds)
 
-spreadsheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1Munh1Tlo24n_ZsTN1Iu1hAfMbVWn4vE6axWl6SHxUk")
+spreadsheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1GfUswpO2WLSnjolMnNdNG1EqsG0TNmD7qIegcF8Ou3Q")
+
 worksheet = spreadsheet.worksheet("cases")
 
 records = worksheet.get_all_records()
