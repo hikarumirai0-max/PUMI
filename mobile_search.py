@@ -4,34 +4,37 @@ from openai import OpenAI
 import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-st.title("FHM 검색")
 
-question = st.text_input("증상 검색")
+st.title("FHM AI")
 
-if st.button("검색"):
+# 대화 기록 저장
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
+# 이전 대화 출력
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).write(msg["content"])
+
+# 사용자 입력
+prompt = st.chat_input("증상이나 문제를 입력하세요")
+
+if prompt:
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
+
+    # 엑셀 데이터 불러오기
     df = pd.read_excel("experience_data.xlsx")
+    knowledge = df.to_string()
 
-    data = df.to_string()
-
-    prompt = f"""
-다음은 복사기 AS 데이터다.
-
-{data}
-
-사용자 질문:
-{question}
-
-관련 사례를 찾아서
-1. 주요 원인
-2. 해결 방법
-
-간단히 정리해라.
-"""
-
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[
+            {"role": "system", "content": f"다음은 복사기 AS 경험 데이터다:\n{knowledge}"},
+            {"role": "user", "content": prompt}
+        ]
     )
 
-    st.write(completion.choices[0].message.content)
+    answer = response.choices[0].message.content
+
+    st.session_state.messages.append({"role": "assistant", "content": answer})
+    st.chat_message("assistant").write(answer)
