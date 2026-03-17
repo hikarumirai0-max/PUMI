@@ -1,64 +1,109 @@
-import os
 import streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from openai import OpenAI
 
-st.set_page_config(page_title="FHM", page_icon="🛠")
+# =========================
+# 0. 앱 설정
+# =========================
+st.set_page_config(page_title="PUMI", page_icon="🐰", layout="wide")
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# =========================
+# 1. 설정값 (여기만 수정)
+# =========================
+APP_TITLE = "PUMI"
+APP_SUBTITLE = "Powered by 퍼스트전산"
+APP_GUIDE = "AS / 계약 / IT 문의를 한 번에 검색할 수 있습니다."
 
-st.title("FHM 검색")
+# 구글 시트 키 (URL에서 /d/ 뒤 부분)
+SHEET_KEY = "https://docs.google.com/spreadsheets/d/1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
 
-scope = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
+# 탭 이름
+WORKSHEET_NAME = "IT AS접수"
+
+# 헤더
+HEADERS = [
+    "순","접수일","월","접수","처리여부","유입경로","접수자","처리자",
+    "순2","등급","미수","임대여부","남은개월","지역","상호","연락처",
+    "자산번호","기종","시리얼번호","증상","처리내용","비고","특이사항",
+    "일반전화","확장성","품목","제조사","기본금액","연평균","계약일",
+    "종료일","교체일","주소","기기상태","시/도","시/구","방문주기",
+    "납품담당","키맨","추가조건","장비소유주","위탁유지보수"
 ]
 
-creds = Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"],
-    scopes=scope
-)
-
-gc = gspread.authorize(creds)
-
-spreadsheet = gc.open_by_url("https://https://docs.google.com/spreadsheets/d/1GfUswpO2WLlsnjoLmNdNG1EqsG0TNmD7qIegcF80u3Q/edit?gid=0#gid=0")
-
-worksheet = spreadsheet.worksheet("cases")
-
-records = worksheet.get_all_records()
-df = pd.DataFrame(records)
-
-question = st.text_input("증상 검색")
-
-if st.button("검색"):
-
-    data = df.to_string(index=False)
-
-    prompt = f"""
-다음은 복사기 및 업무 사례 데이터이다.
-
-{data}
-
-사용자 질문:
-{question}
-
-관련 사례를 찾아서 아래 형식으로 답해라.
-
-1. 가능한 원인
-2. 점검 순서
-3. 조치 방법
-4. 비슷한 사례 요약
-"""
-
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[
-            {"role": "system", "content": "너는 복사기 AS를 도와주는 회사 내부 AI다."},
-            {"role": "user", "content": prompt}
+# =========================
+# 2. 구글 시트 연결 (건드리지 말 것)
+# =========================
+def load_data():
+    creds = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=[
+            "https://www.googleapis.com/auth/spreadsheets.readonly",
+            "https://www.googleapis.com/auth/drive.readonly"
         ],
     )
 
-    answer = response.choices[0].message.content
-    st.write(answer)
+    gc = gspread.authorize(creds)
+    sheet = gc.open_by_key(SHEET_KEY)
+    worksheet = sheet.worksheet(WORKSHEET_NAME)
+
+    data = worksheet.get_all_values()
+
+    rows = data[2:]  # 데이터 시작 위치
+    cleaned = [r[:len(HEADERS)] + [""]*(len(HEADERS)-len(r)) for r in rows]
+
+    df = pd.DataFrame(cleaned, columns=HEADERS)
+    df = df.fillna("").astype(str)
+
+    return df
+
+# =========================
+# 3. OpenAI 연결
+# =========================
+ai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# =========================
+# 4. UI
+# =========================
+st.markdown(
+    f"""
+    <div style="text-align:center;">
+        <h1>{APP_TITLE}</h1>
+        <div>{APP_SUBTITLE}</div>
+        <div style="margin-top:8px;">{APP_GUIDE}</div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+question = st.text_input("", placeholder="예: 용지걸림 / 계약 언제 끝나?")
+
+if st.button("검색") and question:
+    with st.spinner("검색중..."):
+        df = load_data()
+        text_data = df.to_string(index=False)
+
+        prompt = f"""
+다음은 회사 데이터다.
+
+{text_data}
+
+질문:
+{question}
+
+아래 형식으로 답변:
+1. 원인
+2. 해결방법
+3. 참고사항
+"""
+
+        response = ai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        answer = response.choices[0].message.content
+
+        st.markdown("## 결과")
+        st.write(answer)
