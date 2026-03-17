@@ -97,4 +97,4 @@ if st.button("검색") and question:
             st.write(answer)
 
     except Exception as e:
-        st.error(str(e))
+        st.error(f"에러: {e}")
