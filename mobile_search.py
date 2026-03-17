@@ -74,7 +74,7 @@ if st.button("검색") and question:
         df = load_data()
         text_data = df.to_string(index=False)
 
-        prompt = f"""
+prompt = f"""
 다음은 회사 데이터다.
 
 {text_data}
