@@ -19,9 +19,6 @@ APP_GUIDE = "AS / 계약 / IT 문의를 한 번에 검색할 수 있습니다."
 # 구글 시트 키 (URL에서 /d/ 뒤 부분)
 SHEET_KEY = "1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
 
-# 탭 이름
-WORKSHEET_NAME = "IT AS접수"
-
 # 헤더
 HEADERS = [
     "순","접수일","월","접수","처리여부","유입경로","접수자","처리자",
@@ -46,16 +43,21 @@ def load_data():
 
     gc = gspread.authorize(creds)
     sheet = gc.open_by_key(SHEET_KEY)
-    worksheet = sheet.worksheet(WORKSHEET_NAME)
+    worksheets = sheet.worksheets()
+    frames = []
 
-    data = worksheet.get_all_values()
+    for ws in worksheets:
+        data = ws.get_all_values()
+        rows = data[2:]
+        cleaned = [r[:len(HEADERS))] + [""] * (len(HEADERS) - len(r)) for r in rows]
+        if cleaned:
+            frames.append(pd.DataFrame(cleaned, columns=HEADERS))
 
-    rows = data[2:]  # 데이터 시작 위치
-    cleaned = [r[:len(HEADERS)] + [""]*(len(HEADERS)-len(r)) for r in rows]
+    if not frames:
+        return pd.DataFrame(columns=HEADERS)
 
-    df = pd.DataFrame(cleaned, columns=HEADERS)
+    df = pd.concat(frames, ignore_index=True)
     df = df.fillna("").astype(str)
-
     return df
 
 # =========================
@@ -98,9 +100,9 @@ if st.button("검색") and question:
 3. 참고사항
 """
 
-        response = ai_client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt
+       response = ai_client.responses.create(
+       model="gpt-4.1-mini",
+       input=prompt
 )
 
         answer = response.output_text
