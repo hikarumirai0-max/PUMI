@@ -55,31 +55,27 @@ if st.button("검색") and question:
     try:
         with st.spinner("검색중..."):
             df = load_data()
+            st.write("데이터 로드 성공")
+
             text_data = df.to_string(index=False)
 
             prompt = f"""
-다음은 회사 데이터다.
-
 {text_data}
 
-질문:
-{question}
-
-아래 형식으로 답변:
-1. 원인
-2. 해결방법
-3. 참고사항
+질문: {question}
 """
+
+            st.write("AI 요청 시작")
 
             response = ai_client.responses.create(
                 model="gpt-4.1-mini",
                 input=prompt
             )
 
-            answer = response.output_text
+            st.write("AI 응답 받음")
 
-            st.markdown("## 결과")
+            answer = response.output_text
             st.write(answer)
 
     except Exception as e:
-        st.error(str(e))
+        st.error(f"🔥 에러: {e}")
