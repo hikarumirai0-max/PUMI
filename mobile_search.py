@@ -4,14 +4,8 @@ import gspread
 from google.oauth2.service_account import Credentials
 from openai import OpenAI
 
-# ==============================
-# 0. 앱 설정
-# ==============================
 st.set_page_config(page_title="PUMI", page_icon="🐰", layout="wide")
 
-# ==============================
-# 1. 설정값
-# ==============================
 SHEET_KEY = "1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
 
 HEADERS = [
@@ -23,9 +17,6 @@ HEADERS = [
     "납품담당", "키맨", "추가조건", "장비소유주", "위탁유지보수"
 ]
 
-# ==============================
-# 2. 데이터 로드
-# ==============================
 def load_data():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -54,14 +45,8 @@ def load_data():
     df = df.fillna("").astype(str)
     return df
 
-# ==============================
-# 3. OpenAI 연결
-# ==============================
 ai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# ==============================
-# 4. UI
-# ==============================
 st.title("PUMI 검색")
 
 question = st.text_input("검색어", placeholder="예: N501 소음")
@@ -97,4 +82,4 @@ if st.button("검색") and question:
             st.write(answer)
 
     except Exception as e:
-        st.error(f"에러: {e}")
+        st.error(str(e))
