@@ -38,14 +38,12 @@ def load_data():
     gc = gspread.authorize(creds)
     sheet = gc.open_by_key(SHEET_KEY)
     worksheets = sheet.worksheets()
-
     frames = []
 
     for ws in worksheets:
         data = ws.get_all_values()
         rows = data[2:]
         cleaned = [r[:len(HEADERS)] + [""] * (len(HEADERS) - len(r)) for r in rows]
-
         if cleaned:
             frames.append(pd.DataFrame(cleaned, columns=HEADERS))
 
@@ -54,7 +52,6 @@ def load_data():
 
     df = pd.concat(frames, ignore_index=True)
     df = df.fillna("").astype(str)
-
     return df
 
 # ==============================
@@ -74,7 +71,7 @@ if st.button("검색") and question:
         df = load_data()
         text_data = df.to_string(index=False)
 
-prompt = f"""
+        prompt = f"""
 다음은 회사 데이터다.
 
 {text_data}
