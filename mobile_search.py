@@ -17,7 +17,7 @@ APP_SUBTITLE = "Powered by 퍼스트전산"
 APP_GUIDE = "AS / 계약 / IT 문의를 한 번에 검색할 수 있습니다."
 
 # 구글 시트 키 (URL에서 /d/ 뒤 부분)
-SHEET_KEY = "https://docs.google.com/spreadsheets/d/1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
+SHEET_KEY = "1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
 
 # 탭 이름
 WORKSHEET_NAME = "IT AS접수"
