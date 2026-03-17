@@ -67,7 +67,7 @@ ai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # ==============================
 st.title("PUMI 검색")
 
-question = st.text_input("증상 검색", placeholder="예: N501 소음")
+question = st.text_input("검색어", placeholder="예: N501 소음")
 
 if st.button("검색") and question:
     with st.spinner("검색중..."):
