@@ -15,12 +15,12 @@ st.set_page_config(page_title="PUMI", page_icon="🐰", layout="wide")
 SHEET_KEY = "1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
 
 HEADERS = [
-    "순번","접수일","월","접수","처리여부","유입경로","접수자","처리자",
-    "순2","등급","미수","임대여부","남은개월","지역","상호","연락처",
-    "자산번호","기종","시리얼번호","증상","처리내용","비고","특이사항",
-    "일반전화","확장성","품목","제조사","기본금액","연평균","계약일",
-    "종료일","교체일","주소","기기상태","시/도","시/구","방문주기",
-    "납품담당","키맨","추가조건","장비소유주","위탁유지보수"
+    "순번", "접수일", "월", "접수", "처리여부", "유입경로", "접수자", "처리자",
+    "순2", "등급", "미수", "임대여부", "남은개월", "지역", "상호", "연락처",
+    "자산번호", "기종", "시리얼번호", "증상", "처리내용", "비고", "특이사항",
+    "일반전화", "확장성", "품목", "제조사", "기본금액", "연평균", "계약일",
+    "종료일", "교체일", "주소", "기기상태", "시/도", "시/구", "방문주기",
+    "납품담당", "키맨", "추가조건", "장비소유주", "위탁유지보수"
 ]
 
 # ==============================
@@ -31,7 +31,7 @@ def load_data():
         st.secrets["gcp_service_account"],
         scopes=[
             "https://www.googleapis.com/auth/spreadsheets.readonly",
-            "https://www.googleapis.com/auth/drive.readonly"
+            "https://www.googleapis.com/auth/drive.readonly",
         ],
     )
 
@@ -86,9 +86,9 @@ if st.button("검색") and question:
 3. 참고사항
 """
 
-    response = ai_client.responses.create(
-              model="gpt-4.1-mini",
-              input=prompt
+            response = ai_client.responses.create(
+                model="gpt-4.1-mini",
+                input=prompt
             )
 
             answer = response.output_text
@@ -98,11 +98,3 @@ if st.button("검색") and question:
 
     except Exception as e:
         st.error(str(e))
-            model="gpt-4.1-mini",
-            input=prompt
-        )
-
-        answer = response.output_text
-
-        st.markdown("## 결과")
-        st.write(answer)
