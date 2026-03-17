@@ -4,24 +4,18 @@ import gspread
 from google.oauth2.service_account import Credentials
 from openai import OpenAI
 
-# =========================
+# ==============================
 # 0. 앱 설정
-# =========================
+# ==============================
 st.set_page_config(page_title="PUMI", page_icon="🐰", layout="wide")
 
-# =========================
-# 1. 설정값 (여기만 수정)
-# =========================
-APP_TITLE = "PUMI"
-APP_SUBTITLE = "Powered by 퍼스트전산"
-APP_GUIDE = "AS / 계약 / IT 문의를 한 번에 검색할 수 있습니다."
+# ==============================
+# 1. 설정값
+# ==============================
+SHEET_KEY = "여기에_너_시트키"
 
-# 구글 시트 키 (URL에서 /d/ 뒤 부분)
-SHEET_KEY = "1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
-
-# 헤더
 HEADERS = [
-    "순","접수일","월","접수","처리여부","유입경로","접수자","처리자",
+    "순번","접수일","월","접수","처리여부","유입경로","접수자","처리자",
     "순2","등급","미수","임대여부","남은개월","지역","상호","연락처",
     "자산번호","기종","시리얼번호","증상","처리내용","비고","특이사항",
     "일반전화","확장성","품목","제조사","기본금액","연평균","계약일",
@@ -29,9 +23,9 @@ HEADERS = [
     "납품담당","키맨","추가조건","장비소유주","위탁유지보수"
 ]
 
-# =========================
-# 2. 구글 시트 연결 (건드리지 말 것)
-# =========================
+# ==============================
+# 2. 데이터 로드
+# ==============================
 def load_data():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -44,12 +38,14 @@ def load_data():
     gc = gspread.authorize(creds)
     sheet = gc.open_by_key(SHEET_KEY)
     worksheets = sheet.worksheets()
+
     frames = []
 
     for ws in worksheets:
         data = ws.get_all_values()
         rows = data[2:]
         cleaned = [r[:len(HEADERS)] + [""] * (len(HEADERS) - len(r)) for r in rows]
+
         if cleaned:
             frames.append(pd.DataFrame(cleaned, columns=HEADERS))
 
@@ -58,28 +54,20 @@ def load_data():
 
     df = pd.concat(frames, ignore_index=True)
     df = df.fillna("").astype(str)
+
     return df
 
-# =========================
+# ==============================
 # 3. OpenAI 연결
-# =========================
+# ==============================
 ai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# =========================
+# ==============================
 # 4. UI
-# =========================
-st.markdown(
-    f"""
-    <div style="text-align:center;">
-        <h1>{APP_TITLE}</h1>
-        <div>{APP_SUBTITLE}</div>
-        <div style="margin-top:8px;">{APP_GUIDE}</div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# ==============================
+st.title("PUMI 검색")
 
-question = st.text_input("", placeholder="예: 용지걸림 / 계약 언제 끝나?")
+question = st.text_input("증상 검색")
 
 if st.button("검색") and question:
     with st.spinner("검색중..."):
