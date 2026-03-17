@@ -49,7 +49,7 @@ def load_data():
     for ws in worksheets:
         data = ws.get_all_values()
         rows = data[2:]
-        cleaned = [r[:len(HEADERS))] + [""] * (len(HEADERS) - len(r)) for r in rows]
+        cleaned = [r[:len(HEADERS)] + [""] * (len(HEADERS) - len(r)) for r in rows]
         if cleaned:
             frames.append(pd.DataFrame(cleaned, columns=HEADERS))
 
