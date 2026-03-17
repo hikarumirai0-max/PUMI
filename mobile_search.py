@@ -100,10 +100,10 @@ if st.button("검색") and question:
 3. 참고사항
 """
 
-       response = ai_client.responses.create(
-       model="gpt-4.1-mini",
-       input=prompt
-)
+        response = ai_client.responses.create(
+            model="gpt-4.1-mini",
+            input=prompt
+        )
 
         answer = response.output_text
 
