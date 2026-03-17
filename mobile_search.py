@@ -67,11 +67,12 @@ st.title("PUMI 검색")
 question = st.text_input("검색어", placeholder="예: N501 소음")
 
 if st.button("검색") and question:
-    with st.spinner("검색중..."):
-        df = load_data()
-        text_data = df.to_string(index=False)
+    try:
+        with st.spinner("검색중..."):
+            df = load_data()
+            text_data = df.to_string(index=False)
 
-        prompt = f"""
+            prompt = f"""
 다음은 회사 데이터다.
 
 {text_data}
@@ -85,7 +86,18 @@ if st.button("검색") and question:
 3. 참고사항
 """
 
-        response = ai_client.responses.create(
+            response = ai_client.responses.create(
+                model="gpt-4.1-mini",
+                input=prompt
+            )
+
+            answer = response.output_text
+
+            st.markdown("## 결과")
+            st.write(answer)
+
+    except Exception as e:
+        st.error(str(e))
             model="gpt-4.1-mini",
             input=prompt
         )
