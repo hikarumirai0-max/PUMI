@@ -55,9 +55,13 @@ if st.button("검색") and question:
     try:
         with st.spinner("검색중..."):
             df = load_data()
-            st.write("데이터 로드 성공")
+st.write("데이터 로드 성공")
 
-            text_data = df.to_string(index=False)
+use_cols = ["상호", "기종", "증상", "처리내용", "비고", "특이사항"]
+exist_cols = [c for c in use_cols if c in df.columns]
+
+small_df = df[exist_cols].fillna("").astype(str).head(200)
+text_data = small_df.to_string(index=False)
 
             prompt = f"""
 {text_data}
