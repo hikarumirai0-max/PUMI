@@ -12,7 +12,7 @@ st.set_page_config(page_title="PUMI", page_icon="🐰", layout="wide")
 # ==============================
 # 1. 설정값
 # ==============================
-SHEET_KEY = "여기에_너_시트키"
+SHEET_KEY = "1QRlW8IXoPjCyS1A4sIx0E4C1Z64Pa0hMmOWbfAOpn9g"
 
 HEADERS = [
     "순번","접수일","월","접수","처리여부","유입경로","접수자","처리자",
