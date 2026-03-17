@@ -98,12 +98,12 @@ if st.button("검색") and question:
 3. 참고사항
 """
 
-        response = ai_client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "user", "content": prompt}]
-        )
+response = ai_client.responses.create(
+    model="gpt-4.1-mini",
+    input=prompt
+)
 
-        answer = response.choices[0].message.content
+answer = response.output_text
 
         st.markdown("## 결과")
         st.write(answer)
